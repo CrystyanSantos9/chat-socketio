@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: configmap-db-chat
+data:
+  PUID: "1000"
+  PGID: "1000"

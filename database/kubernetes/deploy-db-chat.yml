@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deploy-db-chat
+spec:
+  selector:
+    matchLabels:
+      app: db-chat
+  template:
+    metadata:
+      labels:
+        app: db-chat
+    spec:
+      restartPolicy: Always
+      containers:
+      - name: ctn-db-chat
+        image: mongo
+        resources:
+          requests:
+            cpu: "500m"
+        ports:
+        - containerPort: 27017
+        
