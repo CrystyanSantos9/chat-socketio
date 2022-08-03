@@ -49,7 +49,28 @@
   <script src="/socket.io/socket.io.js"></script>
   <script>
     $(function(){
-      const socket = io() // adiciono o cliente socketio
+      const socket = io()
+      let selectedRomm =''
+
+      $('.room-list').on('click', '.room-item', function(){
+        socket.emit('join', $(this).attr('data-id'))
+      })
+
+      const addRoom = (id, roomName) => {
+        $('.room-list').append('<li data-id="'+id+'" class="room-item">'+roomName+'<span class="notifications">(2)</span></li>')
+      }
+      //evento para escutar a criação de nova sala 
+      socket.on('newRoom', room =>{
+        addRoom(room._id, room.name)
+      })
+
+      socket.on('roomList', rooms =>{
+        $('.room-list').html('')
+        rooms.map(room => {
+         addRoom(room._id, room.name)
+        } )
+      })
+
       $('.add-room').click(function(){
         console.log(socket)
         const roomName = prompt('Informe o nome da sala')

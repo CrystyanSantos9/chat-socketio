@@ -1,7 +1,7 @@
 const express = require('express')
 const app = express()
 const os = require('os')
-const RoomModel = require('./models/room')
+const Room = require('./models/room')
 const session = require('express-session')
 //inicia socket io 
 const http = require('http').Server(app)
@@ -59,15 +59,33 @@ app.get('/room', (req, res)=>{
    }
 })
 
-//Colocamos o socket io para observar por novas conexões
+
 io.on('connection', socket => {
-    //on = observa a chegada de novos eventos
-    //quando o evento addRoom aparecer, pegamos o que veio nele através 
-    //da função 
+    //buscamos pelas salas inicias
+    Room.find({}, (err, rooms)=>{
+        socket.emit('roomList', rooms)
+    })
+
+    //Add nova sala 
     socket.on('addRoom', roomName => {
-        console.log('addRoom', roomName)
+        const room = new Room({
+            name: roomName
+        })
+        room
+        .save()
+        .then(()=>{
+            io.emit('newRoom', room)
+        })
+    })
+
+    //join sala
+    socket.on('join', roomId=>{
+        socket.join(roomId)
+        console.log('join com sala', roomId)
     })
 })
+
+
 
 mongoose
     .connect(mongoString, { useNewUrlParser: true, useUnifiedTopology: true } )
