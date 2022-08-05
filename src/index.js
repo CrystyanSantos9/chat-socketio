@@ -1,8 +1,13 @@
 const express = require('express')
 const app = express()
 const os = require('os')
-const Room = require('./models/room')
 const session = require('express-session')
+const sharedSession = require('express-socket.io-session')
+
+//MODELS
+const Room = require('./models/room')
+const Message = require('./models/message')
+
 //inicia socket io 
 const http = require('http').Server(app)
 const io = require('socket.io')(http)
@@ -25,14 +30,18 @@ app.set('views',  path.join(__dirname,'views'))
 app.set('view engine', 'ejs')
 app.use(express.static(path.join(__dirname,'public')))
 
-app.use(session({
-    secret:process.env.SESSION_SECRET || 'socketio', //variavel de ambiente que fica dentro de .env
-    resave:false, 
-    saveUninitialized:false,
+const expressSession = session({
+    secret: process.env.SESSION_SECRET || 'socketio', //variavel de ambiente que fica dentro de .env
+    resave: false, 
+    saveUninitialized: false,
     cookie: {
         maxAge: 10*60*1000 // 1 hora para cookies de sessão 
     }
-}))
+})
+
+app.use(expressSession)
+io.use(sharedSession(expressSession, { autoSave: true }))
+
 
 
 
@@ -78,12 +87,38 @@ io.on('connection', socket => {
         })
     })
 
-    //join sala
+    //JOIN NA SALA QUANDO CLICADAS PELO CLIENTE
     socket.on('join', roomId=>{
         socket.join(roomId)
+        Message
+            .find({room: roomId})
+            .then((msgs)=>{
+                socket.emit('msgsList', msgs)
+            })
         console.log('join com sala', roomId)
     })
+
+    socket.on('sendMsg', msg=>{
+        const message = new Message({
+            author: socket.handshake.session.user.name, 
+            when: new Date(),
+            type: 'text',
+            message: msg.msg, 
+            room: msg.room
+        })
+        message
+            .save()
+            .then(()=>{
+                io.to(msg.room).emit('newMsg', message)
+            })
+        // console.log(message)
+        // console.log(socket.handshake.session)
+    })
+
 })
+
+
+
 
 
 

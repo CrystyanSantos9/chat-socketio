@@ -33,7 +33,8 @@
         <div class="message"><span class="author"><%= name  %></span><br><span class="msg-body">Mensagem aqui</span></div>
       </div>
       <div class="new-message-form w-form">
-        <form id="email-form" name="email-form" data-name="Email Form" class="form"><textarea id="field" name="field" maxlength="5000" placeholder="Digite sua mensagem e pressione &lt;Enter&gt;" autofocus="true" class="msg w-input"></textarea><a href="#" class="send-audio w-button">Enviar<br>Áudio</a></form>
+       <textarea id="field" name="field" maxlength="5000" placeholder="Digite sua mensagem e pressione &lt;Enter&gt;" autofocus="true" class="msg w-input"></textarea>
+       <a href="#" class="send-audio w-button">Enviar<br>Áudio</a></form>
         <div class="w-form-done">
           <div>Thank you! Your submission has been received!</div>
         </div>
@@ -52,13 +53,53 @@
       const socket = io()
       let selectedRomm =''
 
+      //pegando comando enter do textarea = unicode de enter = 13
+      $('.msg').keyup(function(key){
+        if(selectedRomm !== '' && key.keyCode === 13){
+          socket.emit('sendMsg', {
+            msg: $('.msg').val(),
+            room: selectedRomm
+          })
+          //assim que enviar limpar o campo 
+          $('.msg').val('')
+        }
+      })
+
+      // seleciona sala dar join
       $('.room-list').on('click', '.room-item', function(){
-        socket.emit('join', $(this).attr('data-id'))
+        const roomId = $(this).attr('data-id')
+        socket.emit('join', roomId)
+        selectedRomm = roomId
+      })
+
+      //recebe mensagem enviada e mostra na sala para todos
+      socket.on('newMsg', msg => {
+        if(selectedRomm === msg.room){
+          addMsg(msg)
+        }else{
+          // atualizar contador de msgs não lidas
+        }
+      })
+
+      //recebe mensagens quando clicar nas salas
+      socket.on('msgsList', msgs=>{
+        $('.messages').html('') //limpamos a tela
+        msgs.map(addMsg) //para cada mensagem presente no array, enviamos ela para a função template
       })
 
       const addRoom = (id, roomName) => {
         $('.room-list').append('<li data-id="'+id+'" class="room-item">'+roomName+'<span class="notifications">(2)</span></li>')
       }
+
+      //seleciona elemento msg-body para exibir mensagem na sala
+      const addMsg = (msg)=>{
+       const html =  `<div class="message">
+          <span class="author">${msg.author}</span><br>
+          <span class="msg-body">${msg.message}</span>
+        `
+        $('.messages').append(html)
+      }
+
       //evento para escutar a criação de nova sala 
       socket.on('newRoom', room =>{
         addRoom(room._id, room.name)
@@ -82,3 +123,4 @@
   </script>
 </body>
 </html>
+
