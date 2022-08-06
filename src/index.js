@@ -41,7 +41,14 @@ const expressSession = session({
 
 app.use(expressSession)
 io.use(sharedSession(expressSession, { autoSave: true }))
-
+io.use((socket, next)=>{
+    const session = socket.handshake.session //negociação de conexão
+    if(!session.user){
+        next(new Error('Auth failed!'))
+    }else{
+        next()
+    }
+})
 
 
 
@@ -129,7 +136,7 @@ mongoose
         const connectionState = connectionStateInformation.connected === 1 ? "Connected":"Something got wrong"
     
         http.listen(3000, ()=>{
-            console.log(`Application running on host ${HOST} on port ${PORT} and database is ${connectionState}`)
+            console.log(`Application running on host http://${HOST}:${PORT} and database is ${connectionState}`)
         })
     })
     .catch(error=>{
