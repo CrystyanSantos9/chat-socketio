@@ -1,0 +1,21 @@
+#!/bin/bash
+# openssl req -sha256 -utf8 -newkey rsa:2048 -nodes -keyout ./httpscertificate/chatio.key -out ./httpscertificate/chatio.csr -config ./cnfFile/config.cnf
+openssl req -newkey rsa:2048 -nodes -keyout ./httpscertificate/chatio.key -out ./httpscertificate/chatio.csr
+
+openssl genrsa -des3 -passout pass:vegeta -out ./httpscertificate/chatio.key 2048
+
+openssl rsa -passin pass:vegeta -in ./httpscertificate/chatio.key -out ./httpscertificate/chatio.key
+
+openssl req -new -key ./httpscertificate/chatio.key -out ./httpscertificate/chatio.csr
+
+openssl x509 -req -days 365 -in ./httpscertificate/chatio.csr -signkey ./httpscertificate/chatio.key -out ./httpscertificate/chatio.crt
+
+openssl s_client -servername chatio.local -connect chatio.local:443
+curl -L --cacert ./httpscertificate/chatio.crt https://chatio.local
+
+sleep 1
+
+openssl x509 -req -in ./httpscertificate/chatio.csr -days 365  -signkey ./httpscertificate/chatio.key -out ./httpscertificate/chatio.crt -extensions req_cert_extensions -extfile  ./cnfFile/config.cnf && openssl x509  -in ./httpscertificate/chatio.crt -text 
+
+
+

@@ -1,0 +1,25 @@
+[req]
+default_bits = 2048
+default_md = sha256
+prompt = no
+utf8 = yes
+string_mask = utf8only
+distinguished_name = client_distinguished_name
+x509_extensions = req_cert_extensions
+
+[ client_distinguished_name ]
+countryName = BR
+stateOrProvinceName = 
+localityName =
+organizationName = 
+organizationalUnitName = 
+commonName = chatio.local
+emailAddress = 
+
+[ req_cert_extensions ]
+basicConstraints = CA:FALSE
+subjectAltName = @alt_name
+keyUsage = critical,digitalSignature,keyEncipherment
+
+[ alt_name ]
+DNS = chatio.local
