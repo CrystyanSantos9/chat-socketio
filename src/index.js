@@ -19,8 +19,9 @@ const { application } = require('express')
 const path = require('path')
 const mongoString = process.env.MONGO_STRING || 'mongodb://172.18.0.2:32017/chat-socketio'
 
+const hostname = os.hostname()
 const PORT = process.env.PORT || 3000
-const HOST = process.env.HOST || os.hostname()
+const HOST = process.env.HOST || '192.168.1.110'
 
 app.use(express.json())
 app.use(express.urlencoded({extended: false}))
@@ -122,12 +123,25 @@ io.on('connection', socket => {
         // console.log(socket.handshake.session)
     })
 
+    //Received audio 
+    socket.on('sendAudio', msg =>{
+        const message = new Message({
+            author: socket.handshake.session.user.name, 
+            when: new Date(),
+            type: 'audio',
+            message: msg.data, 
+            room: msg.room
+        })
+        message
+            .save()
+            .then(()=>{
+                io.to(msg.room).emit('newAudio', message)
+            })
+        // console.log(message)
+        // console.log(socket.handshake.session)
+    })
+
 })
-
-
-
-
-
 
 mongoose
     .connect(mongoString, { useNewUrlParser: true, useUnifiedTopology: true } )
