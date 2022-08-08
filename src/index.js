@@ -3,6 +3,7 @@ const app = express()
 const os = require('os')
 const session = require('express-session')
 const sharedSession = require('express-socket.io-session')
+const cors = require('cors')
 
 //MODELS
 const Room = require('./models/room')
@@ -25,7 +26,7 @@ const HOST = process.env.HOST || '192.168.1.110'
 
 app.use(express.json())
 app.use(express.urlencoded({extended: false}))
-
+app.use(cors())
 
 app.set('views',  path.join(__dirname,'views'))
 app.set('view engine', 'ejs')
@@ -59,12 +60,14 @@ app.get('/', (req, res)=> res.render('home'))
 //salva dados na sessao
 //redireciona para /room 
 app.post('/', (req, res)=> {
-    req.session.user = {
-        name: req.body.name
-    }
-    res.redirect('/room')
-}
-)
+    if(req.body.name !==''){
+        req.session.user = {
+            name: req.body.name
+        }
+        return res.redirect('/room')
+    } 
+     res.redirect('/')
+})
 
 app.get('/room', (req, res)=>{
    if(!req.session.user){
@@ -148,7 +151,6 @@ mongoose
     .then(async ()=>{
         const connectionStateInformation = await mongoose.STATES
         const connectionState = connectionStateInformation.connected === 1 ? "Connected":"Something got wrong"
-    
         http.listen(3000, ()=>{
             console.log(`Application running on host http://${HOST}:${PORT} and database is ${connectionState}`)
         })

@@ -42,7 +42,13 @@
         <form>
           <textarea id="field" name="field" maxlength="5000" placeholder="Digite sua mensagem e pressione &lt;Enter&gt;"
             autofocus="true" class="msg w-input"></textarea>
-          <button type="button" class="send-audio w-button">Enviar<br>Áudio</button>
+          <span style="display: flex; ">
+            <button type="button" class="send-audio w-button">Enviar<br>Áudio</button>
+            <!-- <button type="button" class="start-counter w-button">Contar tempo<br></button> -->
+            <div class="slidecontainer">
+              <input type="range" min="1" max="10" value="1" class="slider" id="myRange">
+            </div>
+          </span>
         </form>
       </div>
     </div>
@@ -93,18 +99,73 @@
         })
 
       //Botão que envia áudio 
-      $('.send-audio')
-        .mouseup(function () {
-          // console.log('quando solto o click >> up')
-          if (audioPermission && selectedRomm !== '') {
-            mediaRecorder.stop()
-          }
-        })
-        .mousedown(function () {
-          if (audioPermission && selectedRomm !== '') {
-            mediaRecorder.start()
-          }
-        })
+      // $('.send-audio')
+      //   .mouseup(function () {
+      //     // console.log('quando solto o click >> up')
+      //     if (audioPermission && selectedRomm !== '') {
+      //       mediaRecorder.stop()
+      //     }
+      //   })
+      //   .mousedown(function () {
+      //     if (audioPermission && selectedRomm !== '') {
+      //       mediaRecorder.start()
+      //     }
+      //   })
+
+      class EventTimeCountAudioRecord {
+        constructor(event) {
+          this.__timeCount = 1
+          this.__maxTime = 10
+          this.__evento = event
+          this.__counter = ''
+        }
+
+        initCount() {
+          console.log('start couting')
+          this.__counter = setInterval(() => {
+            $('#myRange').val(this.__timeCount)
+            if (this.__timeCount >= this.__maxTime) {
+              console.log('stop count', this.__timeCount)
+              this.stopCount()
+            }
+            this.__timeCount += 1
+          }, 1000)
+        }
+
+        stopCount() {
+          console.log("stop counting")
+          clearInterval(this.__counter)
+          this.__timeCount = 1
+          $('#myRange').val(this.__timeCount)
+        }
+      }
+
+      const newCount = new EventTimeCountAudioRecord()
+
+      // $('.start-counter').on('touchstart', event =>{
+      //   if (event.type === 'touchstart') {
+      //     newCount.initCount()
+      //   }
+      // })
+
+      // $('.start-counter').on('touchend', event =>{
+      //   if (event.type === 'touchend') {
+      //     newCount.stopCount()
+      //   }
+      // })
+
+
+      $('.send-audio').on('touchstart touchend mousedown mouseup', (event) => {
+        if (selectedRomm !== '' && (event.type === 'touchstart' || event.type === 'mousedown')) {
+          mediaRecorder.start()
+          newCount.initCount()
+        } else if (selectedRomm !== '' && (event.type === 'touchend' || event.type === 'mouseup')) {
+          mediaRecorder.stop()
+          newCount.stopCount()
+        } else {
+          return ''
+        }
+      })
 
       //pegando comando enter do textarea = unicode de enter = 13
       $('.msg').keyup(function (key) {
@@ -123,6 +184,8 @@
         const roomId = $(this).attr('data-id')
         socket.emit('join', roomId)
         selectedRomm = roomId
+        $('#' + roomId + ' .notifications').show()
+        $('#' + roomId + ' .notifications span').text('0')
       })
 
       //recebe mensagem enviada e mostra na sala para todos
@@ -131,6 +194,13 @@
           addMsg(msg)
         } else {
           // atualizar contador de msgs não lidas
+          const id = msg.room 
+          //uso span para peagr o valor dento do span dentro da classe 
+          //usamos text para pegar e alterar o valor do elemento html e não value 
+          let count = parseInt($('#'+id+' .notifications span').text())
+          //adiciona mais mensagem não lida 
+          count+=1
+          $('#'+id+' .notifications span').text(count)
         }
       })
 
@@ -150,7 +220,8 @@
       })
 
       const addRoom = (id, roomName) => {
-        $('.room-list').append('<li data-id="' + id + '" class="room-item">' + roomName + '<span class="notifications">(2)</span></li>')
+        $('.room-list').append('<li id="' + id + '" data-id="' + id + '" class="room-item">' + roomName + '<span class="notifications">(<span>0</span>)</span></li>')
+        $('#' + id + ' .notifications').hide()
       }
 
       const renderMsg = (type, msg) => {
