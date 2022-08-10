@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: configmap-app-chat
+data:
+  PORT: '8080'
+  MONGO_STRING: 'mongodb://svc-db-chat/chat-socketio'

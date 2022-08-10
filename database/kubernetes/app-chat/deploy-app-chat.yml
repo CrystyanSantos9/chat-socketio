@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deploy-app-chat
+spec:
+  selector:
+    matchLabels:
+      app: app-chat
+  template:
+    metadata:
+      labels:
+        app: app-chat
+    spec:
+      restartPolicy: Always
+      containers:
+      - name: ctn-app-chat
+        image: cryssantos9/socker-app-img:v1
+        resources:
+          requests:
+            cpu: "500m"
+        ports:
+        - containerPort: 8080
+        

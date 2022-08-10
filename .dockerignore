@@ -1,0 +1,6 @@
+node_modules
+npm-debug.log
+database
+proxy
+__tests__
+
