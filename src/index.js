@@ -22,7 +22,7 @@ const mongoString = process.env.MONGO_STRING || 'mongodb://172.18.0.2:32017/chat
 
 const hostname = os.hostname()
 const PORT = process.env.PORT || 3000
-const HOST = process.env.HOST || '192.168.1.110'
+const HOST = process.env.HOST || '0.0.0.0'
 
 app.use(express.json())
 app.use(express.urlencoded({extended: false}))
@@ -151,7 +151,7 @@ mongoose
     .then(async ()=>{
         const connectionStateInformation = await mongoose.STATES
         const connectionState = connectionStateInformation.connected === 1 ? "Connected":"Something got wrong"
-        http.listen(3000, ()=>{
+        http.listen(PORT, ()=>{
             console.log(`Application running on host http://${HOST}:${PORT} and database is ${connectionState}`)
         })
     })
