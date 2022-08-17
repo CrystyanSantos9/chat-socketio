@@ -12,7 +12,8 @@ const Message = require('./models/message')
 //inicia socket io 
 const http = require('http').Server(app)
 const io = require('socket.io')(http)
-
+const redis = require('socket.io-redis')
+io.adapter(redis({ host: "192.168.1.110", port: 6379 }))
 
 
 const mongoose = require('mongoose')
