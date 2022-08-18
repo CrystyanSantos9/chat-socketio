@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 const express = require('express')
 const app = express()
 const os = require('os')
@@ -17,12 +18,11 @@ io.adapter(redis({ host: "192.168.1.110", port: 6379 }))
 
 
 const mongoose = require('mongoose')
-const { application } = require('express')
 const path = require('path')
 const mongoString = process.env.MONGO_STRING || 'mongodb://172.18.0.2:32017/chat-socketio'
 
 const hostname = os.hostname()
-const PORT = process.env.PORT || 3000
+const PORT = process.env.PORT || 3005
 const HOST = process.env.HOST || '0.0.0.0'
 
 app.use(express.json())

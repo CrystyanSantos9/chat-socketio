@@ -51,6 +51,8 @@ proxy/httpscertificate/*
 # TypeScript cache
 *.tsbuildinfo
 
+chat-socketio-react
+
 # Optional npm cache directory
 .npm
 
