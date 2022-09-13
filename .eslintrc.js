@@ -1,6 +1,8 @@
 module.exports = {
     "env": {
         "browser": true,
+        "node": true,
+        "jest": true,
         "commonjs": true,
         "es2021": true
     },
@@ -13,7 +15,7 @@ module.exports = {
         "ecmaVersion": "latest"
     },
     "plugins": [
-     
+
     ],
     "rules": {
     }
