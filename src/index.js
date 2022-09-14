@@ -4,6 +4,7 @@ const os = require('os')
 const session = require('express-session')
 const sharedSession = require('express-socket.io-session')
 const cors = require('cors')
+require("events").captureRejections = true;
 
 app.use(cors())
 
@@ -136,25 +137,37 @@ io.on('connection', socket => {
 
     //JOIN NA SALA QUANDO CLICADAS PELO CLIENTE
     socket.on('join', roomId => {
-            console.log("Room ID recebido: ", roomId)
-            let ObjectIdRoom = mongoose.Types.ObjectId(roomId)
-            console.log("Room id converted to objectId: ", ObjectIdRoom)
-            socket.join(roomId)
-        try{
+        // Adicionei se roomId está vazio 
+        if (roomId === '' || typeof (roomId) !== "string") {
+            const errorSent = Error('roomId not sent or empty')
+            console.log(`\u001b[31mError ::: ${errorSent.message}\u001b[0m`)
+            socket.emit('error', errorSent.message)
+            return
+        }
+
+        //se ok
+        console.log("Room ID recebido: ", roomId)
+        let ObjectIdRoom = mongoose.Types.ObjectId(roomId)
+        console.log(`Room id converted to objectId: \u001b[34m${ObjectIdRoom}\u001b[0m`);
+        socket.join(roomId)
+        try {
             Message
                 .find({ room: ObjectIdRoom })
                 .then((msgs) => {
                     socket.emit('msgsList', msgs)
                 })
-            console.log('join com sala', roomId)
+            console.log(`Join com sala: \u001b[33m${roomId}\u001b[0m`);
         } catch (err) {
             console.log(err)
         }
     })
 
-    socket.on('sendMsg', msg => {
+    socket.on('sendMsg', async msg => {
+        //  Adicionado decodificaor do doken 
+        const decodedToken = await jwt.decode(socket.handshake.query.token, jwtSecret)
+
         const message = new Message({
-            author: socket.handshake.session.user.name,
+            author: decodedToken.name,
             when: new Date(),
             type: 'text',
             message: msg.msg,

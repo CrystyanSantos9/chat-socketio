@@ -1,5 +1,5 @@
 {
-    "parser": "typescript",
+    "parser": "typescript, javascript",
     "printWidth": 120,
     "semi": false,
     "bracketSpacing": true,

@@ -19,7 +19,7 @@
       "titleBar.inactiveForeground": "#e7e7e799",
       "commandCenter.border": "#e7e7e799",
       "window.zoomLevel": 1,
-      "prettier.configPath": "./.prettierrc.js",
+      "prettier.configPath": "./.prettierrc.json",
       "typescript.tsdk": "node_modules/typescript/lib",
       "editor.formatOnSave": true,
       "editor.inlayHints.enabled": "on",
