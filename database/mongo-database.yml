@@ -1,0 +1,15 @@
+version: '3.1'
+
+services:
+  mongo:
+    image: mongo
+    restart: always
+    container_name: mongo-chat
+    ports:
+     - 27017:27017
+    volumes:
+     - chat-storage:/data/db 
+
+volumes:
+ chat-storage:
+  external: true

@@ -30,7 +30,8 @@ const redis = require('socket.io-redis')
 
 const mongoose = require('mongoose')
 const path = require('path')
-const mongoString = process.env.MONGO_STRING || 'mongodb://172.18.0.2:32017/chat-socketio'
+// const mongoString = process.env.MONGO_STRING || 'mongodb://172.18.0.2:32017/chat-socketio'
+const mongoString = process.env.MONGO_STRING || 'mongodb://192.168.1.110:27017/chat-socketio'
 
 const hostname = os.hostname()
 const PORT = process.env.PORT || 3001
@@ -183,9 +184,10 @@ io.on('connection', socket => {
     })
 
     //Received audio 
-    socket.on('sendAudio', msg => {
+    socket.on('sendAudio', async msg => {
+        const decoded = await jwt.decode(socket.handshake.query.token)
         const message = new Message({
-            author: socket.handshake.session.user.name,
+            author: decoded.name,
             when: new Date(),
             type: 'audio',
             message: msg.data,

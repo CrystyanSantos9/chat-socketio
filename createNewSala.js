@@ -1,7 +1,8 @@
 const mongoose = require('mongoose')
 const Room = require('./src/models/room')
 
-const mongoString = process.env.MONGO_STRING || 'mongodb://172.18.0.2:32017/chat-socketio'
+// const mongoString = process.env.MONGO_STRING || 'mongodb://172.18.0.2:32017/chat-socketio'
+const mongoString = process.env.MONGO_STRING || 'mongodb://192.168.1.110:27017/chat-socketio'
 
 mongoose
     .connect(mongoString, { useNewUrlParser: true, useUnifiedTopology: true })
